@@ -1,5 +1,6 @@
 /** Overridable per environment so canonical + OG URLs are correct on previews. */
-const url = process.env.NEXT_PUBLIC_SITE_URL ?? "https://campaignx.ai";
+const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const url = (configuredUrl || "https://campaignx.ai").replace(/\/$/, "");
 
 export const siteConfig = {
   name: "CampaignX",
