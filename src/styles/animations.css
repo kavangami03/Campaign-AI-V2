@@ -36,13 +36,18 @@
   opacity: 0;
 }
 
+/* Translate only — no scale.
+   A blurred element that merely moves can be promoted to its own layer and
+   composited, so the blur is rasterised once. Scaling it invalidates that
+   cache and forces the browser to re-blur the full area every frame, which
+   on the hero's three large volumes was enough to halve the frame rate. */
 @keyframes cx-drift {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(0, -14px, 0) scale(1.03);
+    transform: translate3d(0, -18px, 0);
   }
 }
 
@@ -81,6 +86,9 @@
 
 .cx-drift {
   animation: cx-drift 14s var(--ease-in-out-soft) infinite;
+  /* Promotes the layer up front, so the blur is rasterised once rather
+     than on the first animated frame. */
+  will-change: transform;
 }
 
 /* Duration is a variable so each rail sets a pace suited to its width;

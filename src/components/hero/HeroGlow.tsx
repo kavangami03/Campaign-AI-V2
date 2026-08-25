@@ -54,12 +54,16 @@ export function HeroGlow() {
         ))}
       </svg>
 
-      {/* Brand aurora. Three volumes now, and stronger than before — with
-          the key light no longer opaque there is something to see. */}
+      {/* Brand aurora.
+
+          Two volumes rather than three, at a much smaller blur radius. A
+          radial-gradient is already soft, so an 80px blur on top of it was
+          buying almost nothing visible while forcing the browser to
+          rasterise several times the viewport area on every frame. The
+          opacity is raised to compensate for the tighter falloff. */}
       <div className="absolute inset-x-0 bottom-[-18vh] h-[85vh]">
-        <div className="cx-drift absolute bottom-[10vh] left-[2vw] h-[58vh] w-[62vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(0,123,255,0.20),transparent)] blur-[80px]" />
-        <div className="cx-drift absolute right-[0vw] bottom-[4vh] h-[52vh] w-[56vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(208,0,255,0.15),transparent)] blur-[85px] [animation-delay:-7s]" />
-        <div className="cx-drift absolute bottom-[18vh] left-1/2 h-[40vh] w-[45vw] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(75,60,255,0.14),transparent)] blur-[90px] [animation-delay:-12s]" />
+        <div className="cx-drift absolute bottom-[10vh] left-[2vw] h-[58vh] w-[62vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(0,123,255,0.26),transparent)] blur-[40px]" />
+        <div className="cx-drift absolute right-[0vw] bottom-[4vh] h-[52vh] w-[56vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(208,0,255,0.20),transparent)] blur-[40px] [animation-delay:-7s]" />
       </div>
 
       {/* A single bright bloom directly behind the prompt bar, so the focal
@@ -73,7 +77,11 @@ export function HeroGlow() {
       {/* Grounding wash so the devices don't float on raw colour. */}
       <div className="absolute inset-x-0 bottom-0 h-[24vh] bg-[linear-gradient(to_top,var(--background),transparent)]" />
 
-      <div className="bg-noise absolute inset-0 opacity-[0.035] mix-blend-multiply" />
+      {/* No blend mode: mix-blend-multiply makes the compositor re-blend
+          everything beneath this layer on every frame the aurora moves.
+          Over an off-white page a plain low-opacity overlay is visually
+          equivalent and composites once. */}
+      <div className="bg-noise absolute inset-0 opacity-[0.03]" />
     </div>
   );
 }
