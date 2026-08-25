@@ -90,8 +90,11 @@ function CampaignCreative() {
   return (
     <span className="relative mb-1.5 block aspect-[5/4] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(145deg,var(--brand-blue),var(--brand-violet)_48%,var(--brand-magenta))]">
       <span className="absolute -top-1/4 -left-1/4 block size-[85%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.5),transparent)]" />
-      <span className="cx-drift absolute right-[-12%] bottom-[-18%] block size-[65%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.28),transparent)]" />
-      <span className="cx-drift absolute top-[18%] left-[8%] block size-[38%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.22),transparent)] [animation-delay:-5s]" />
+      {/* Static, not drifting: these sit inside a 300px card where the
+          movement was imperceptible, and two more animated layers in the
+          hero cost frames the section cannot spare. */}
+      <span className="absolute right-[-12%] bottom-[-18%] block size-[65%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.28),transparent)]" />
+      <span className="absolute top-[18%] left-[8%] block size-[38%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.22),transparent)]" />
 
       <span className="absolute inset-x-0 bottom-0 flex flex-col gap-1 bg-[linear-gradient(to_top,rgba(0,0,0,0.28),transparent)] px-2 pt-4 pb-2">
         <span className="block h-1.5 w-3/5 rounded-full bg-white/90" />
@@ -364,7 +367,11 @@ export function PhoneMock({ channel, className }: PhoneMockProps) {
         <div
           data-hero-screen
           aria-hidden="true"
-          className="relative aspect-[9/16] w-full overflow-hidden rounded-[1.65rem] bg-surface-sunk sm:rounded-[1.9rem]"
+          /* `contain: paint` lets the browser skip everything outside the
+             screen's own box, and translateZ promotes it to its own
+             compositor layer — so a video frame changing here repaints the
+             card rather than a region of the hero around it. */
+          className="relative aspect-[9/16] w-full overflow-hidden rounded-[1.65rem] bg-surface-sunk [contain:paint] [transform:translateZ(0)] sm:rounded-[1.9rem]"
         >
           {channel.src ? (
             /* `preload="auto"` rather than "metadata": these are small
