@@ -53,10 +53,46 @@ export interface HowStep {
   readonly takeaway: string;
 }
 
-/** One tool in the fragmented "before" stack. */
-export interface FragmentTool {
+/**
+ * One stage of shipping a campaign, shown on both timelines so the two can
+ * be read against each other line for line.
+ */
+export interface CampaignStage {
+  readonly role: string;
+  /** Before: the tool this stage happens in. */
+  readonly tool: string;
+  /** Before: elapsed days. */
+  readonly days: string;
+  /** Before: what the handoff out of this stage costs. */
+  readonly loss: string;
+  /** After: elapsed time in CampaignX. */
+  readonly time: string;
+  /** After: what happens instead. */
+  readonly instead: string;
+}
+
+/** One pricing tier. */
+export interface PricingPlan {
+  readonly name: string;
+  readonly summary: string;
+  /** Null renders as "Custom" — used for the contact-us tier. */
+  readonly monthly: number | null;
+  readonly priceNote: string;
+  readonly cta: string;
+  readonly featured: boolean;
+  readonly features: readonly string[];
+}
+
+/** One question and answer. */
+export interface FaqItem {
+  readonly question: string;
+  readonly answer: string;
+}
+
+/** One customer quote. */
+export interface Testimonial {
+  readonly quote: string;
   readonly name: string;
   readonly role: string;
-  /** What is lost at the handoff out of this tool. */
-  readonly loss: string;
+  readonly company: string;
 }

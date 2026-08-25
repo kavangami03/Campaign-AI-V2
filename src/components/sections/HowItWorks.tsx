@@ -65,12 +65,20 @@ export function HowItWorks() {
     <section
       id={SECTION_IDS.how}
       aria-labelledby="how-heading"
-      /* Painted to match the illustrations' own ground, so the artwork has
-         no visible edge against the page. The top margin separates that
-         warm band from the off-white section above it, rather than letting
-         the two colours meet flush. */
-      className="relative mt-[60px] bg-surface-warm py-[90px]"
+      /* The band is painted by the gradient below rather than by a flat
+         background, so the cream fades in and out instead of starting on a
+         hard line. The colour itself is sampled from the illustrations, and
+         has to stay: it is what stops each one showing a pale rectangle
+         where its own ground meets the page. */
+      className="relative isolate py-[110px]"
     >
+      {/* The band. Solid through the middle where the artwork sits, fading
+          to the page colour at both ends. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,var(--background),var(--surface-warm)_14%,var(--surface-warm)_86%,var(--background))]"
+      />
+
       <Container>
         <div ref={rootRef}>
           {/* Heading */}
@@ -177,37 +185,41 @@ function PinnedSequence({ active }: { active: number }) {
                 {step.description}
               </p>
 
-              {/* Stat and takeaway share a row, so the figure has something
-                  to sit against rather than floating alone. */}
-              <div className="mt-7 flex items-center gap-5">
-                <p className="flex shrink-0 flex-col">
-                  <span className="text-display text-brand text-[clamp(2rem,3.4vw,2.75rem)] leading-none">
-                    {step.stat.value}
-                  </span>
-                  <span className="mt-1 text-[0.75rem] whitespace-nowrap text-muted">
-                    {step.stat.label}
-                  </span>
-                </p>
+              {/* The figure and its takeaway on one baseline.
 
+                  The number and its unit sit together as a single phrase —
+                  "1 sentence", "9 channels" — rather than stacking the label
+                  under the figure, which read as two unrelated fragments.
+                  The takeaway follows on the same line at reading size, so
+                  the whole thing scans as one sentence. */}
+              <p className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-display text-brand text-[clamp(2.25rem,3.6vw,3rem)] leading-none">
+                  {step.stat.value}
+                </span>
+                <span className="text-display text-[1.125rem] text-muted-strong">
+                  {step.stat.label}
+                </span>
                 <span
                   aria-hidden="true"
-                  className="h-14 w-px shrink-0 bg-line-strong"
+                  className="mx-1 h-4 w-px self-center bg-line-strong"
                 />
-
-                <p className="text-[0.9375rem] leading-relaxed text-muted-strong">
+                <span className="text-[1rem] leading-relaxed text-muted-strong">
                   {step.takeaway}
-                </p>
-              </div>
+                </span>
+              </p>
 
-              <ul className="mt-5 flex flex-wrap gap-2">
+              {/* Proof points, on a rule rather than in chips. Pills made
+                  three short phrases look like navigation; a single ruled
+                  row keeps them as supporting detail. */}
+              <ul className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-5">
                 {step.points.map((point) => (
                   <li
                     key={point}
-                    className="inline-flex items-center gap-2 rounded-pill border border-line px-3 py-1.5 text-[0.8125rem] font-medium text-muted-strong"
+                    className="inline-flex items-center gap-2 text-[0.875rem] text-muted"
                   >
                     <span
                       aria-hidden="true"
-                      className="bg-brand block size-1.5 shrink-0 rounded-full"
+                      className="bg-brand block size-1 shrink-0 rounded-full"
                     />
                     {point}
                   </li>
@@ -300,12 +312,19 @@ function StackedSteps() {
           <div className="flex flex-col gap-3.5">
             <span className="text-eyebrow text-accent">{step.step}</span>
 
-            <p className="flex items-baseline gap-2.5">
-              <span className="text-display text-brand text-[clamp(2.5rem,4vw,3.5rem)] leading-none">
+            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-display text-brand text-[clamp(2.25rem,3.6vw,3rem)] leading-none">
                 {step.stat.value}
               </span>
-              <span className="text-[0.9375rem] text-muted">
+              <span className="text-display text-[1.125rem] text-muted-strong">
                 {step.stat.label}
+              </span>
+              <span
+                aria-hidden="true"
+                className="mx-1 h-4 w-px self-center bg-line-strong"
+              />
+              <span className="text-[1rem] leading-relaxed text-muted-strong">
+                {step.takeaway}
               </span>
             </p>
 
@@ -317,24 +336,21 @@ function StackedSteps() {
               {step.description}
             </p>
 
-            <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-2">
+            <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-5">
               {step.points.map((point) => (
                 <li
                   key={point}
-                  className="inline-flex items-center gap-2 rounded-pill border border-line bg-surface/70 px-3 py-1.5 text-[0.8125rem] font-medium text-muted-strong"
+                  className="inline-flex items-center gap-2 text-[0.875rem] text-muted"
                 >
                   <span
                     aria-hidden="true"
-                    className="bg-brand block size-1.5 shrink-0 rounded-full"
+                    className="bg-brand block size-1 shrink-0 rounded-full"
                   />
                   {point}
                 </li>
               ))}
             </ul>
 
-            <p className="mt-2 max-w-[44ch] border-l-2 border-accent-line pl-4 text-[0.9375rem] leading-relaxed text-muted-strong">
-              {step.takeaway}
-            </p>
           </div>
 
           {step.image ? (

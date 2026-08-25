@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { Container } from "@/components/layout/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { withHighlight } from "@/components/ui/Highlight";
+import { SectionGlow } from "@/components/ui/SectionGlow";
 import { problem } from "@/config/content";
 import {
   gsap,
@@ -12,19 +13,29 @@ import {
 } from "@/lib/animations/gsap";
 import { revealOnScroll } from "@/lib/animations/reveal";
 
+const { stages, totals } = problem;
+
+/** Shared column template, so the header, rows and totals stay aligned. */
+const COLS =
+  "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)]";
+
 /**
  * The problem.
  *
- * The page's first section after the hero, and the one that earns everything
- * below it: without a stated problem, "one brief becomes a campaign" is a
- * claim about nothing.
+ * The page's first argument, and the one that earns everything below it:
+ * without a stated problem, "one brief becomes a campaign" is a solution to
+ * nothing.
  *
- * The argument is made structurally rather than in prose. Four tool cards
- * sit in a row, each tilted a little further out of alignment than the last
- * and each carrying what it loses at the handoff — so the row visibly
- * degrades left to right. The resolution below it is a single flat panel,
- * deliberately the only thing on the page that is perfectly square to the
- * grid.
+ * Built as a row-per-stage comparison rather than two separate timelines.
+ * Earlier versions put the before and after in different parts of the
+ * section, which meant the reader had to hold four facts in their head to
+ * make the comparison themselves. Here each row states one stage twice —
+ * what it costs today, what it costs in CampaignX — so the contrast is read
+ * rather than assembled.
+ *
+ * The bar on each row is the argument made to scale: it is sized to that
+ * stage's share of the three weeks, so the cost is visible before it is
+ * read.
  */
 export function Problem() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -37,63 +48,28 @@ export function Problem() {
 
     const ctx = gsap.context(() => {
       /* Runs on every path: the CSS in animations.css keeps
-         [data-animate="reveal"] hidden until GSAP clears it, so skipping
-         this on the motion path leaves the section invisible. */
-      revealOnScroll(root, { stagger: 0.08, start: "top 78%" });
+         [data-animate="reveal"] hidden until GSAP clears it, so skipping it
+         on the motion path leaves the section invisible. */
+      revealOnScroll(root, { stagger: 0.08, start: "top 80%" });
 
       if (prefersReducedMotion()) return;
 
-      /* The chain breaks as it scrolls in: each card drifts a little
-         further from true than the one before it, so the row falls out of
-         alignment rather than simply appearing. */
-      const cards = gsap.utils.toArray<HTMLElement>("[data-fragment]", root);
-      cards.forEach((card, i) => {
+      /* Each cost bar grows to its share of the three weeks, so the time
+         accumulates rather than simply being present. */
+      const bars = gsap.utils.toArray<HTMLElement>("[data-cost-bar]", root);
+      bars.forEach((bar, i) => {
         gsap.fromTo(
-          card,
-          { rotate: 0, y: 0 },
+          bar,
+          { scaleX: 0 },
           {
-            rotate: (i - 1.5) * 1.6,
-            y: i * 6,
-            ease: "none",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%",
-              end: "top 45%",
-              scrub: 0.8,
-            },
-          },
-        );
-      });
-
-      /* The answers do the opposite: they arrive tilted and settle square,
-         so the resolution is legible as motion and not only as copy. */
-      const resolved = gsap.utils.toArray<HTMLElement>("[data-resolve]", root);
-      resolved.forEach((card, i) => {
-        gsap.fromTo(
-          card,
-          { rotate: (i - 1.5) * 2.2, y: 18, opacity: 0 },
-          {
-            rotate: 0,
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            delay: i * 0.09,
+            scaleX: 1,
+            duration: 0.9,
+            delay: i * 0.08,
             ease: "power3.out",
-            scrollTrigger: { trigger: card, start: "top 88%", once: true },
+            transformOrigin: "left center",
+            scrollTrigger: { trigger: bar, start: "top 88%", once: true },
           },
         );
-      });
-
-      /* Each card's rule fills once it has landed. */
-      const rules = gsap.utils.toArray<HTMLElement>("[data-resolve-rule]", root);
-      rules.forEach((rule, i) => {
-        gsap.to(rule, {
-          width: "100%",
-          duration: 0.8,
-          delay: 0.5 + i * 0.09,
-          ease: "power2.inOut",
-          scrollTrigger: { trigger: rule, start: "top 92%", once: true },
-        });
       });
     }, root);
 
@@ -104,8 +80,10 @@ export function Problem() {
     <section
       id="problem"
       aria-labelledby="problem-heading"
-      className="relative py-[90px]"
+      className="relative isolate py-[90px]"
     >
+      <SectionGlow position="left" />
+
       <Container>
         <div ref={rootRef}>
           {/* Heading */}
@@ -132,136 +110,134 @@ export function Problem() {
             </p>
           </div>
 
-          {/* The broken chain */}
-          <ol className="mt-16 grid gap-4 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
-            {problem.tools.map((tool, index) => (
-              <li
-                key={tool.name}
-                data-animate="reveal"
-                data-fragment
-                className="relative flex flex-col gap-3 rounded-panel border border-line bg-surface/60 p-6"
-              >
-                {/* Break marker between cards, desktop only. */}
-                {index < problem.tools.length - 1 ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-1/2 -right-[9px] z-10 hidden size-3.5 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-background lg:flex"
-                  >
-                    <span className="block h-px w-1.5 bg-muted/40" />
-                  </span>
-                ) : null}
+          {/* ------------------------------------------------------------
+              The comparison.
 
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-eyebrow">{tool.role}</span>
-                  <span className="text-[0.6875rem] tabular-nums text-muted/40">
-                    0{index + 1}
-                  </span>
-                </div>
-
-                <p className="text-display text-[1.25rem]">{tool.name}</p>
-
-                {/* What is lost here. Struck through, because that is what
-                    the handoff does to it. */}
-                <p className="mt-1 flex items-start gap-2 text-[0.875rem] leading-relaxed text-muted">
-                  <span
-                    aria-hidden="true"
-                    className="mt-[0.45em] block h-px w-3 shrink-0 bg-muted/40"
-                  />
-                  {tool.loss}
-                </p>
-              </li>
-            ))}
-          </ol>
-
-          {/* The cost of all that */}
-          <p
-            data-animate="reveal"
-            className="mt-10 flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 text-center"
-          >
-            <span className="text-display text-[clamp(1.75rem,3vw,2.5rem)] text-muted-strong">
-              {problem.cost.value}
-            </span>
-            <span className="text-[0.9375rem] text-muted">
-              {problem.cost.label}
-            </span>
-          </p>
-
-
-          {/* The resolution.
-
-              Four cards answering the four above, in the same order and the
-              same grid — so the eye reads them as replacements rather than
-              a separate list of benefits. Where the tool cards drift apart
-              on scroll, these snap square, which is the whole argument made
-              as motion. */}
-          <div className="relative mt-16 sm:mt-20">
+              Three columns on desktop: the stage, its cost today, its cost
+              in CampaignX. On mobile each stage becomes a stacked block
+              carrying its own labels, since three columns of real copy
+              cannot survive a narrow screen.
+              ------------------------------------------------------------ */}
+          <div className="mt-16 sm:mt-20">
+            {/* Column headers, desktop only. */}
             <div
               data-animate="reveal"
-              className="relative overflow-hidden rounded-frame bg-foreground p-8 sm:p-12"
+              className={`hidden items-end gap-8 border-b border-line pb-4 lg:grid ${COLS}`}
             >
-              {/* Brand light, low right. */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-[15%] -bottom-1/2 size-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(var(--brand-blue-rgb),0.35),transparent)] blur-[70px]"
-              />
+              <span className="text-eyebrow text-muted/50">Stage</span>
+              <span className="text-eyebrow text-muted/60">
+                {problem.beforeLabel}
+              </span>
+              <span className="text-eyebrow text-accent">
+                {problem.afterLabel}
+              </span>
+            </div>
 
-              <div className="relative flex flex-col items-center gap-3 text-center">
-                <span className="inline-flex items-center gap-2.5">
-                  <span
-                    aria-hidden="true"
-                    className="flex items-center gap-[3px]"
-                  >
-                    <span className="bg-brand block h-2.5 w-[3px] rounded-full" />
-                    <span className="bg-brand block h-1.5 w-[3px] rounded-full opacity-50" />
-                  </span>
-                  <span className="text-eyebrow text-white/60">
-                    {problem.after.label}
-                  </span>
-                </span>
+            <ol className="flex flex-col">
+              {stages.map((stage, index) => (
+                <li
+                  key={stage.role}
+                  data-animate="reveal"
+                  className={`grid gap-5 border-b border-line py-7 lg:items-center lg:gap-8 ${COLS}`}
+                >
+                  {/* Stage */}
+                  <div className="flex items-baseline gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="text-[0.75rem] tabular-nums text-muted/40"
+                    >
+                      0{index + 1}
+                    </span>
+                    <span className="text-display text-[1.125rem]">
+                      {stage.role}
+                    </span>
+                  </div>
 
-                <h3 className="text-display max-w-[18ch] text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.12] text-balance text-white">
-                  {problem.after.heading}
-                </h3>
-              </div>
+                  {/* Today */}
+                  <div className="flex flex-col gap-2.5">
+                    <span className="text-eyebrow text-muted/50 lg:hidden">
+                      {problem.beforeLabel}
+                    </span>
 
-              {/* The four answers, in the tools' own grid. */}
-              <ol className="relative mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {problem.after.points.map((point, index) => (
-                  <li
-                    key={point.replaces}
-                    data-resolve
-                    className="group relative flex flex-col gap-3 rounded-panel border border-white/10 bg-white/[0.03] p-5 transition-colors duration-500 hover:border-white/20 hover:bg-white/[0.06]"
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-eyebrow text-white/45">
-                        {point.replaces}
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-display w-[4.25rem] shrink-0 text-[1.375rem] text-muted-strong">
+                        {stage.days}
                       </span>
-                      <span
-                        aria-hidden="true"
-                        className="text-brand text-[0.6875rem] font-semibold tabular-nums"
-                      >
-                        0{index + 1}
+                      <span className="text-[0.9375rem] text-muted">
+                        in {stage.tool}
                       </span>
                     </div>
 
-                    <p className="text-[0.9375rem] leading-relaxed text-white/80">
-                      {point.text}
-                    </p>
-
-                    {/* A rule that fills as the card settles, marking it
-                        resolved. */}
+                    {/* Scaled to this stage's share of the three weeks. */}
                     <span
                       aria-hidden="true"
-                      className="mt-auto block h-px w-full overflow-hidden bg-white/10"
+                      className="block h-1.5 overflow-hidden rounded-full bg-surface-sunk"
+                      style={{
+                        width: `${(parseInt(stage.days, 10) / 21) * 100}%`,
+                      }}
                     >
                       <span
-                        data-resolve-rule
-                        className="bg-brand block h-full w-0 rounded-full"
+                        data-cost-bar
+                        className="block h-full w-full origin-left rounded-full bg-muted/35"
                       />
                     </span>
-                  </li>
-                ))}
-              </ol>
+
+                    <span className="text-[0.875rem] leading-relaxed text-muted line-through decoration-muted/30">
+                      {stage.loss}
+                    </span>
+                  </div>
+
+                  {/* With CampaignX */}
+                  <div className="flex flex-col gap-2.5 lg:border-l lg:border-line lg:pl-8">
+                    <span className="text-eyebrow text-accent lg:hidden">
+                      {problem.afterLabel}
+                    </span>
+
+                    <span className="text-display text-brand text-[1.375rem]">
+                      {stage.time}
+                    </span>
+
+                    <span className="text-[0.9375rem] leading-relaxed text-foreground">
+                      {stage.instead}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            {/* The totals, on the same grid so each figure lands under the
+                column it belongs to. */}
+            <div
+              data-animate="reveal"
+              className={`grid gap-6 pt-8 lg:gap-8 ${COLS}`}
+            >
+              <span className="text-eyebrow text-muted/50 lg:self-center">
+                Total
+              </span>
+
+              <p className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span className="text-display text-[clamp(2.5rem,5vw,4rem)] leading-none text-muted-strong">
+                  {totals.before.value}
+                </span>
+                <span className="text-display text-[1.125rem] text-muted">
+                  {totals.before.unit}
+                </span>
+                <span className="text-[0.875rem] text-muted/70">
+                  {totals.before.note}
+                </span>
+              </p>
+
+              <p className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 lg:border-l lg:border-line lg:pl-8">
+                <span className="text-display text-brand text-[clamp(2.5rem,5vw,4rem)] leading-none">
+                  {totals.after.value}
+                </span>
+                <span className="text-display text-[1.125rem] text-muted-strong">
+                  {totals.after.unit}
+                </span>
+                <span className="text-[0.875rem] text-muted/70">
+                  {totals.after.note}
+                </span>
+              </p>
             </div>
           </div>
         </div>

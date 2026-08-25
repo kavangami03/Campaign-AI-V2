@@ -193,6 +193,17 @@
   background-size: 72px 72px;
 }
 
+/* A dot field rather than a ruled grid: finer, less literal, and it does
+   not read as a chart sitting behind the headline. */
+@utility cx-dots {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(10, 10, 10, 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+}
+
 @utility bg-noise {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
@@ -262,4 +273,40 @@
 /** The barely-there tint, for selected and active states. */
 @utility bg-brand-soft {
   background-image: var(--brand-gradient-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Disclosure animation
+
+   Native <details> snaps open with no transition. `interpolate-size` makes
+   `height: auto` animatable, and `::details-content` is the pseudo-element
+   that wraps everything after the <summary> — together they give a real
+   height transition without reaching for JS or measuring anything.
+
+   Both are progressive: where they are unsupported the panel simply snaps
+   as it always did, which is the behaviour we already shipped.
+   -------------------------------------------------------------------------- */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+.cx-disclosure::details-content {
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    block-size var(--dur-base) var(--ease-out-soft),
+    content-visibility var(--dur-base) allow-discrete,
+    opacity 220ms var(--ease-out-soft);
+}
+
+.cx-disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-disclosure::details-content {
+    transition: none;
+  }
 }

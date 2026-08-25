@@ -1,5 +1,8 @@
 import type {
-  FragmentTool,
+  CampaignStage,
+  FaqItem,
+  PricingPlan,
+  Testimonial,
   HeroChannel,
   HowStep,
   Platform,
@@ -105,59 +108,59 @@ export const socialProof = {
 
 export const problem = {
   eyebrow: "The cost of fragmentation",
-  heading: "A campaign shouldn't take four tools and three weeks.",
-  headingHighlight: "four tools",
-  /**
-   * One entry per line. Authored rather than balanced by the browser: the
-   * break belongs between the two sentences, and text-balance would put it
-   * in the middle of the list of tools.
-   */
+  heading: "Three weeks. Four tools. One campaign.",
+  headingHighlight: "Four tools",
   supporting: [
-    "A doc, a design file, an ad manager, a spreadsheet.",
-    "Every handoff loses something.",
+    "This is what shipping a single campaign actually looks like.",
   ],
 
-  /** The stack a campaign currently passes through, in order. */
-  tools: [
+  beforeLabel: "Without CampaignX",
+  afterLabel: "With CampaignX",
+
+  /**
+   * One entry per stage, carrying both sides. Keeping them in a single
+   * object rather than two parallel arrays is what guarantees the before
+   * and after rows stay aligned as copy changes.
+   */
+  stages: [
     {
-      name: "The doc",
       role: "Strategy",
-      loss: "Nobody re-reads it after week one",
+      tool: "The doc",
+      days: "4 days",
+      loss: "Written once, then nobody reopens it",
+      time: "2 min",
+      instead: "The brief is the strategy",
     },
     {
-      name: "The design file",
       role: "Creative",
+      tool: "The design file",
+      days: "7 days",
       loss: "Off-brand by the third variant",
+      time: "6 min",
+      instead: "Every variant from one brand model",
     },
     {
-      name: "The ad manager",
       role: "Distribution",
-      loss: "Every channel rebuilt from scratch",
+      tool: "The ad manager",
+      days: "6 days",
+      loss: "Each channel rebuilt by hand",
+      time: "4 min",
+      instead: "All channels generate together",
     },
     {
-      name: "The spreadsheet",
       role: "Reporting",
-      loss: "Arrives after the budget is spent",
+      tool: "The spreadsheet",
+      days: "4 days",
+      loss: "Lands after the budget is spent",
+      time: "Live",
+      instead: "Results feed the next campaign",
     },
-  ] as const satisfies readonly FragmentTool[],
+  ] as const satisfies readonly CampaignStage[],
 
-  /** The cost, stated plainly. */
-  cost: { value: "3 weeks", label: "from brief to live, on a good run" },
-
-  /** What replaces it. */
-  after: {
-    label: "With CampaignX",
-    heading: "One workspace. One brief. One afternoon.",
-    /**
-     * One entry per tool above, in the same order — so each card answers
-     * the card it replaces rather than floating as a generic benefit.
-     */
-    points: [
-      { replaces: "Strategy", text: "Written into the brief, not a doc nobody reopens" },
-      { replaces: "Creative", text: "A private brand model holds the voice across every variant" },
-      { replaces: "Distribution", text: "Channel versions generate together, not one after another" },
-      { replaces: "Reporting", text: "Results land while the budget is still live" },
-    ],
+  /** The two totals, compared. */
+  totals: {
+    before: { value: "21", unit: "days", note: "four tools, three handoffs" },
+    after: { value: "1", unit: "afternoon", note: "one brief, one workspace" },
   },
 } as const;
 
@@ -174,49 +177,45 @@ export const howItWorks = {
       step: "01",
       title: "You write the brief",
       description:
-        "One sentence in plain language. No templates, no fields to fill, no brief document to circulate for approval.",
+        "One sentence, in your own words. No template, no form, no brief document to circulate.",
       visual: "brief",
       image: "/images/how-01-brief.png",
       points: ["Plain language", "No templates", "No approval chain"],
-      stat: { value: "1", label: "sentence in" },
-      takeaway:
-        "If you can describe it to a colleague, you can brief CampaignX.",
+      stat: { value: "1", label: "sentence" },
+      takeaway: "If you can say it to a colleague, you can brief CampaignX.",
     },
     {
       step: "02",
       title: "It learns your brand",
       description:
-        "Connect a site, upload guidelines, or paste past campaigns. CampaignX builds a private model of how you sound — and it never leaves your workspace.",
+        "Point it at your site, your guidelines, or a campaign you liked. It builds a private model of how you sound.",
       visual: "brand",
       image: "/images/how-02-brand.png",
       points: ["Private to you", "Voice and tone", "Never trained on"],
-      stat: { value: "100%", label: "yours alone" },
-      takeaway:
-        "Your model is isolated to your workspace. It is never pooled, shared or used to train anything else.",
+      stat: { value: "100%", label: "private" },
+      takeaway: "Your model never leaves your workspace.",
     },
     {
       step: "03",
       title: "Every channel, natively",
       description:
-        "Not one asset resized nine times. Each channel gets copy and creative written for how people actually read it there.",
+        "An email is not a story frame with different margins. Each channel gets copy written for how people read it there.",
       visual: "adapt",
       image: "/images/how-03-channels.png",
       points: ["Per-channel copy", "Native formats", "On-brand by default"],
-      stat: { value: "9", label: "channels, natively" },
-      takeaway:
-        "An email is not a story frame with different margins. Each one is written for how people actually read it there.",
+      stat: { value: "9", label: "channels" },
+      takeaway: "One brief. Nine formats. All of them on brand.",
     },
     {
       step: "04",
       title: "It learns what worked",
       description:
-        "Results feed straight back into the model. The next campaign starts from what performed, not from a blank page.",
+        "Results go straight back into the model. The next campaign starts from what performed, not a blank page.",
       visual: "learn",
       image: "/images/how-04-learn.png",
       points: ["Live performance", "Reallocates spend", "Rewrites the losers"],
       stat: { value: "24/7", label: "optimising" },
-      takeaway:
-        "Every campaign makes the next one better, without anyone rebuilding a report.",
+      takeaway: "Every campaign makes the next one better.",
     },
   ] as readonly HowStep[],
 };
@@ -237,5 +236,177 @@ export const finalCta = {
   },
 } as const;
 
-export const footerBlurb =
-  "The AI campaign agent for marketing teams who care about craft, clarity and results.";
+export const footerBlurb = "The AI campaign agent for teams who care about craft.";
+
+/* -------------------------------------------------------------- pricing -- */
+
+export const pricing = {
+  eyebrow: "Pricing",
+  heading: "Start free. Pay when it ships work.",
+  headingHighlight: "Start free",
+  supporting: ["No card to begin. No per-seat surprise when the team grows."],
+
+  /**
+   * PLACEHOLDER PRICING — replace before launch.
+   *
+   * These figures are plausible SaaS tiers, not decided commercial terms.
+   * Nothing else needs changing when the real numbers land: the section
+   * reads plan shape, price and features straight from here.
+   */
+  plans: [
+    {
+      name: "Starter",
+      summary: "For one marketer testing the water.",
+      monthly: 0,
+      priceNote: "Free forever",
+      cta: "Start a Campaign",
+      featured: false,
+      features: [
+        "3 campaigns a month",
+        "2 channels",
+        "Brand model from one source",
+        "Community support",
+      ],
+    },
+    {
+      name: "Team",
+      summary: "For a marketing team shipping every week.",
+      monthly: 79,
+      priceNote: "per workspace, billed monthly",
+      cta: "Start a Campaign",
+      featured: true,
+      features: [
+        "Unlimited campaigns",
+        "All nine channels",
+        "Full brand model with approvals",
+        "Performance loop and reporting",
+        "Unlimited seats",
+      ],
+    },
+    {
+      name: "Enterprise",
+      summary: "For teams with procurement and a security review.",
+      monthly: null,
+      priceNote: "Custom",
+      cta: "Talk to us",
+      featured: false,
+      features: [
+        "Everything in Team",
+        "SSO / SAML and SCIM",
+        "Data residency choice",
+        "Audit export and retention controls",
+        "Named support contact",
+      ],
+    },
+  ] as const satisfies readonly PricingPlan[],
+};
+
+/* ------------------------------------------------------------------ faq -- */
+
+export const faq = {
+  eyebrow: "Questions",
+  heading: "The things people ask first.",
+  headingHighlight: "ask first",
+
+  items: [
+    {
+      question: "Will it sound like us, or like AI?",
+      answer:
+        "It learns your voice from your own material — your site, your guidelines, your past campaigns — and writes from that model rather than a generic one. You approve everything before it ships, and edits feed back into the model.",
+    },
+    {
+      question: "Do you train on our data?",
+      answer:
+        "No. Your content, brand model and results stay in your workspace. They are never used to train shared models and never pooled with another customer's data.",
+    },
+    {
+      question: "What if the output is wrong?",
+      answer:
+        "Nothing sends without a named approver signing off. You can edit any asset directly, regenerate a single channel, or rewrite the brief and start again — the other channels stay as they are.",
+    },
+    {
+      question: "Which channels does it actually publish to?",
+      answer:
+        "Instagram, Facebook, LinkedIn, Google Business, X, Email and SMS, with webhooks for anything else in your stack. Each one gets copy and creative built for that channel's format, not one asset resized.",
+    },
+    {
+      question: "How long does setup take?",
+      answer:
+        "Connecting a site and generating a first campaign takes about ten minutes. Building a brand model you trust for everything usually takes one afternoon of feeding it real material and correcting what it gets wrong.",
+    },
+    {
+      question: "Can we keep using our existing tools?",
+      answer:
+        "Yes. CampaignX replaces the assembly work between them, not necessarily the tools themselves. Most teams keep their CRM and analytics and let CampaignX handle brief-to-launch.",
+    },
+  ] as const satisfies readonly FaqItem[],
+};
+
+/* --------------------------------------------------------- testimonials -- */
+
+export const testimonials = {
+  eyebrow: "What teams say",
+  heading: "Marketers who stopped assembling campaigns.",
+  headingHighlight: "stopped assembling",
+
+  /**
+   * PLACEHOLDER TESTIMONIALS — INVENTED PEOPLE AND COMPANIES.
+   *
+   * These read as real quotes so the section can be designed and reviewed,
+   * but every name, role and company below is fictional. Publishing them
+   * would be a claim about businesses that do not exist, and it is trivially
+   * checkable. Replace all of them with quotes you have permission to use
+   * before this page goes live.
+   */
+  items: [
+    {
+      quote:
+        "We used to block out three weeks for a launch. Last one took an afternoon, and the email outperformed the version our agency wrote.",
+      name: "Sofia Marchetti",
+      role: "Head of Growth",
+      company: "Northwave",
+    },
+    {
+      quote:
+        "I was ready to hate the copy. It sounds like us — because it learned from us, not from the internet.",
+      name: "Daniel Okoye",
+      role: "Brand Lead",
+      company: "Rally Goods",
+    },
+    {
+      quote:
+        "The per-channel thing is the whole point. We stopped shipping one asset squeezed into five shapes.",
+      name: "Priya Raman",
+      role: "Marketing Manager",
+      company: "Fieldnote",
+    },
+    {
+      quote:
+        "Cost per acquisition down 34% in the first quarter, and I am not rebuilding a reporting deck every Monday.",
+      name: "Tom Bergström",
+      role: "Performance Director",
+      company: "Cadence Retail",
+    },
+    {
+      quote:
+        "Approvals used to be the bottleneck. Now the whole team works in one place and nothing ships without a sign-off.",
+      name: "Amara Diallo",
+      role: "Campaign Operations",
+      company: "Studio Meridian",
+    },
+    {
+      quote:
+        "It caught that our tone shifts between B2B and consumer. I did not tell it that — it worked it out from our old campaigns.",
+      name: "Lucas Ferreira",
+      role: "Content Strategist",
+      company: "Halden & Co",
+    },
+    {
+      quote:
+        "Two people now do what took six. That is not a headcount story, it is a nobody-does-copy-paste-anymore story.",
+      name: "Emma Lindqvist",
+      role: "VP Marketing",
+      company: "Orbit Labs",
+    },
+  ] as const satisfies readonly Testimonial[],
+};

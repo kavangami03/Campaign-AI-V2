@@ -1,12 +1,14 @@
 /**
- * Hero backdrop — an off-white page with a faint grid and a whisper of
- * brand colour low in the frame.
+ * Hero backdrop.
  *
- * Deliberately restrained: the brand gradient earns its impact on the CTA
- * and the highlighted words, and a large colour wash behind them would
- * spend that impact on nothing. What is left is two low-opacity volumes,
- * far enough down and light enough that they read as paper catching
- * coloured light rather than as a gradient background.
+ * Layered rather than flat: a dot field for texture, converging guide lines
+ * that point at the prompt bar, a soft brand aurora low in the frame, and a
+ * spotlight that keeps the headline sitting on clean paper.
+ *
+ * The key light is deliberately *not* opaque. An earlier version painted it
+ * at 0.97 white across the top two-thirds, which flattened every layer under
+ * it — the grid and the colour were both present in the markup and invisible
+ * on screen.
  *
  * Everything here is decorative and hidden from assistive tech.
  */
@@ -18,25 +20,60 @@ export function HeroGlow() {
     >
       <div className="absolute inset-0 bg-background" />
 
-      {/* Faint grid, fading out before it reaches the colour. */}
-      <div className="bg-grid mask-fade-edges absolute inset-x-0 top-0 h-[62vh] opacity-60 [mask-image:linear-gradient(to_bottom,#000,transparent)]" />
+      {/* Dot field. Finer than a grid and less literal, so it reads as
+          texture rather than as a chart behind the headline. */}
+      <div className="cx-dots mask-fade-edges absolute inset-x-0 top-0 h-[85vh] [mask-image:linear-gradient(to_bottom,#000_35%,transparent)]" />
 
-      {/* Two volumes only, at the ends of the brand ramp, sitting low. */}
-      <div className="absolute inset-x-0 bottom-[-22vh] h-[80vh]">
-        <div className="cx-drift absolute bottom-[8vh] left-[4vw] h-[52vh] w-[58vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(0,123,255,0.10),rgba(0,123,255,0))] blur-[90px]" />
-        <div className="cx-drift absolute right-[2vw] bottom-[2vh] h-[46vh] w-[52vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(208,0,255,0.07),rgba(208,0,255,0))] blur-[95px] [animation-delay:-7s]" />
+      {/* Guide lines converging on the prompt bar, echoing the connectors
+          that fan out of it below. */}
+      <svg
+        className="absolute inset-x-0 top-0 h-[70vh] w-full"
+        viewBox="0 0 1200 700"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="cx-hero-guide" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--brand-blue)" stopOpacity="0" />
+            <stop
+              offset="100%"
+              stopColor="var(--brand-violet)"
+              stopOpacity="0.13"
+            />
+          </linearGradient>
+        </defs>
+
+        {[80, 300, 900, 1120].map((x) => (
+          <path
+            key={x}
+            d={`M${x} 0 C${x} 320 600 400 600 700`}
+            fill="none"
+            stroke="url(#cx-hero-guide)"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+      </svg>
+
+      {/* Brand aurora. Three volumes now, and stronger than before — with
+          the key light no longer opaque there is something to see. */}
+      <div className="absolute inset-x-0 bottom-[-18vh] h-[85vh]">
+        <div className="cx-drift absolute bottom-[10vh] left-[2vw] h-[58vh] w-[62vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(0,123,255,0.20),transparent)] blur-[80px]" />
+        <div className="cx-drift absolute right-[0vw] bottom-[4vh] h-[52vh] w-[56vw] rounded-[50%] bg-[radial-gradient(closest-side,rgba(208,0,255,0.15),transparent)] blur-[85px] [animation-delay:-7s]" />
+        <div className="cx-drift absolute bottom-[18vh] left-1/2 h-[40vh] w-[45vw] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(75,60,255,0.14),transparent)] blur-[90px] [animation-delay:-12s]" />
       </div>
 
-      {/* Key light, upper centre — keeps the headline sitting on paper. */}
-      <div className="absolute top-[-26vh] left-1/2 h-[76vh] w-[120vw] max-w-[1700px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(255,255,255,0.97),rgba(255,255,255,0))]" />
+      {/* A single bright bloom directly behind the prompt bar, so the focal
+          point of the hero is also the brightest point of the backdrop. */}
+      <div className="absolute top-[38vh] left-1/2 h-[42vh] w-[70vw] max-w-[900px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(255,255,255,0.9),transparent)]" />
 
-      {/* Veil behind the prompt bar so type stays legible over the colour. */}
-      <div className="absolute inset-x-0 top-[22vh] h-[46vh] bg-[radial-gradient(60%_50%_at_50%_40%,rgba(255,255,255,0.85),rgba(255,255,255,0))]" />
+      {/* Spotlight on the headline. Falls off quickly rather than covering
+          the frame, so the layers above stay visible at the edges. */}
+      <div className="absolute top-[-30vh] left-1/2 h-[72vh] w-[110vw] max-w-[1500px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(255,255,255,0.82),transparent)]" />
 
       {/* Grounding wash so the devices don't float on raw colour. */}
-      <div className="absolute inset-x-0 bottom-0 h-[26vh] bg-[linear-gradient(to_top,var(--background),transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-[24vh] bg-[linear-gradient(to_top,var(--background),transparent)]" />
 
-      <div className="bg-noise absolute inset-0 opacity-[0.03] mix-blend-multiply" />
+      <div className="bg-noise absolute inset-0 opacity-[0.035] mix-blend-multiply" />
     </div>
   );
 }

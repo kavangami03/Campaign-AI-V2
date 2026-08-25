@@ -38,10 +38,16 @@ const COLORS: Record<Exclude<PlatformName, "instagram">, string> = {
 interface BrandGlyphProps {
   name: PlatformName;
   className?: string;
+  /**
+   * Paints the mark in `currentColor` instead of its brand colour. Needed
+   * on dark surfaces: X and TikTok are officially black, which is
+   * invisible against a dark background.
+   */
+  inherit?: boolean;
 }
 
-export function BrandGlyph({ name, className }: BrandGlyphProps) {
-  const isInstagram = name === "instagram";
+export function BrandGlyph({ name, className, inherit }: BrandGlyphProps) {
+  const isInstagram = name === "instagram" && !inherit;
 
   /* The gradient needs a document-unique id: the mark can appear more than
      once on a page (a duplicated marquee track renders every platform
@@ -52,11 +58,19 @@ export function BrandGlyph({ name, className }: BrandGlyphProps) {
      `url(#...)` references in some browsers — so they are stripped. */
   const gradientId = `cx-ig${useId().replace(/:/g, "")}`;
 
+  /* Resolved up front so each branch is only reached when it is valid:
+     COLORS has no instagram entry, since that mark is a gradient. */
+  const fill = inherit
+    ? "currentColor"
+    : name === "instagram"
+      ? `url(#${gradientId})`
+      : COLORS[name];
+
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
-      fill={isInstagram ? `url(#${gradientId})` : COLORS[name]}
+      fill={fill}
       aria-hidden="true"
     >
       {/* Instagram's identity is a gradient, warm to cool. */}

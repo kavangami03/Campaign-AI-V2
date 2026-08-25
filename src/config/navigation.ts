@@ -3,8 +3,11 @@ import type { FooterColumn, NavItem } from "@/types/navigation";
 /* Only two anchors exist on the page now, so the nav links to those
    rather than advertising sections that were removed. */
 export const navigation: readonly NavItem[] = [
+  { label: "Why CampaignX", href: "#problem", description: "The cost of four tools" },
   { label: "How it works", href: "#how", description: "Brief to shipped campaign" },
   { label: "Channels", href: "#channels", description: "Everywhere your audience is" },
+  { label: "Pricing", href: "#pricing", description: "Start free, pay when it ships" },
+  { label: "FAQ", href: "#faq", description: "The things people ask first" },
 ];
 
 export const primaryCta: NavItem = {
@@ -23,7 +26,7 @@ export const footerNavigation: readonly FooterColumn[] = [
     items: [
       { label: "How it works", href: "#how" },
       { label: "Channels", href: "#channels" },
-      { label: "Start a campaign", href: "#start" },
+      { label: "Pricing", href: "#pricing" },
     ],
   },
   {
@@ -37,8 +40,8 @@ export const footerNavigation: readonly FooterColumn[] = [
   {
     title: "Resources",
     items: [
+      { label: "FAQ", href: "#faq" },
       { label: "Help centre", href: "#help" },
-      { label: "Changelog", href: "#changelog" },
       { label: "Status", href: "#status" },
     ],
   },

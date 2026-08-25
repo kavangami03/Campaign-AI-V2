@@ -19,6 +19,8 @@ export const MEDIA = {
 export const SECTION_IDS = {
   hero: "hero",
   how: "how",
+  pricing: "pricing",
+  start: "start",
 } as const;
 
 export const HEADER_SCROLL_THRESHOLD = 24;

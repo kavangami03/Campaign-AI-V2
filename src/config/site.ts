@@ -10,11 +10,16 @@ export const siteConfig = {
     "CampaignX transforms marketing briefs into strategy, creative, targeting, launch and optimization with AI.",
   title: "CampaignX — Turn One Brief Into a Complete Campaign",
   twitter: "@campaignx",
+  /** Social links for the footer. Placeholders until the accounts exist. */
+  socials: [
+    { id: "x", label: "X", href: "#x" },
+    { id: "linkedin", label: "LinkedIn", href: "#linkedin" },
+    { id: "instagram", label: "Instagram", href: "#instagram" },
+  ] as const,
   copyrightYear: 2026,
   legal: [
     { label: "Privacy", href: "#privacy" },
     { label: "Terms", href: "#terms" },
-    { label: "Security", href: "#security" },
   ],
 } as const;
 

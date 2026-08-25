@@ -11,16 +11,12 @@ import {
 } from "react";
 import { ArrowRight, Paperclip, Sparkles } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { BrandGlyph } from "@/components/ui/BrandGlyph";
 import { withHighlight } from "@/components/ui/Highlight";
-import { Logo } from "@/components/ui/Logo";
 import { finalCta, footerBlurb } from "@/config/content";
 import { footerNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
-import {
-  gsap,
-  registerGsap,
-  prefersReducedMotion,
-} from "@/lib/animations/gsap";
+import { gsap, registerGsap } from "@/lib/animations/gsap";
 import { revealOnScroll } from "@/lib/animations/reveal";
 
 /** Where the prompt bar sends people. A placeholder until auth exists. */
@@ -74,30 +70,6 @@ export function Footer() {
          clears it, so skipping this leaves the content invisible. */
       revealOnScroll(root, { stagger: 0.07, start: "top 85%" });
 
-      if (prefersReducedMotion()) return;
-
-      /* The wordmark draws itself up out of the footer's bottom edge as the
-         page ends — a last piece of motion rather than a static sign-off. */
-      const mark = root.querySelector<HTMLElement>("[data-footer-mark]");
-      if (mark) {
-        /* Only the transform is animated. The element's opacity is its
-           resting style (0.16) — tweening it to 1 would blast the wordmark
-           to full strength and swamp the footer. */
-        gsap.fromTo(
-          mark,
-          { yPercent: 14 },
-          {
-            yPercent: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: mark,
-              start: "top 95%",
-              end: "bottom bottom",
-              scrub: 0.6,
-            },
-          },
-        );
-      }
     }, root);
 
     return () => ctx.revert();
@@ -219,57 +191,110 @@ export function Footer() {
         </Container>
       </section>
 
-      {/* ---------------------------------------------------------------
-          Footer proper
-          --------------------------------------------------------------- */}
-      <div className="border-t border-line bg-background">
-        <Container className="pt-16 pb-10">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-20">
-            <div data-animate="reveal" className="flex max-w-[34ch] flex-col gap-5">
-              <Logo />
-              <p className="text-[0.9375rem] leading-relaxed text-muted">
-                {footerBlurb}
-              </p>
-            </div>
 
-            <nav
-              aria-label="Footer"
-              className="grid grid-cols-2 gap-8 sm:grid-cols-3"
+
+
+      {/* ---------------------------------------------------------------
+          Footer.
+
+          The structural idea: the wordmark is the floor. It runs the full
+          bleed at the very bottom, clipped by the page edge, and everything
+          else sits on top of it — so the footer reads as one composition
+          rather than a column layout with a logo dropped in the corner.
+
+          The navigation is a single ruled row rather than three stacked
+          columns. With nine links a column grid leaves most of its area
+          empty, which is what made the previous version feel like padding.
+          --------------------------------------------------------------- */}
+      <div className="relative overflow-hidden bg-foreground pt-20">
+        {/* Aurora, low and wide. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]"
+        >
+          <div className="absolute -bottom-1/3 left-[10%] size-[55%] rounded-full bg-[radial-gradient(closest-side,rgba(var(--brand-blue-rgb),0.35),transparent)] blur-[90px]" />
+          <div className="absolute right-[8%] -bottom-1/4 size-[45%] rounded-full bg-[radial-gradient(closest-side,rgba(208,0,255,0.22),transparent)] blur-[90px]" />
+        </div>
+
+        <Container className="relative">
+          {/* Top row: the promise, and the way in. */}
+          <div
+            data-animate="reveal"
+            className="flex flex-col gap-8 border-b border-white/10 pb-12 lg:flex-row lg:items-end lg:justify-between lg:gap-16"
+          >
+            <p className="text-display max-w-[18ch] text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.1] text-white">
+              {footerBlurb}
+            </p>
+
+            <Link
+              href={finalCta.primaryCta.href}
+              className="group inline-flex w-fit shrink-0 items-center gap-3 rounded-pill border border-white/20 py-3 pr-3 pl-6 text-[0.9375rem] font-medium text-white transition-colors duration-300 hover:border-white/40"
             >
-              {footerNavigation.map((column) => (
-                <div
-                  key={column.title}
-                  data-animate="reveal"
-                  className="flex flex-col gap-4"
-                >
-                  <h2 className="text-eyebrow">{column.title}</h2>
-                  <ul className="flex flex-col gap-3">
-                    {column.items.map((item) => (
-                      <li key={`${column.title}-${item.label}`}>
-                        <Link
-                          href={item.href}
-                          className="group inline-flex items-center gap-1.5 text-[0.9375rem] text-muted transition-colors duration-300 hover:text-foreground"
-                        >
-                          {item.label}
-                          {/* A hairline that grows from the left on hover,
-                              matching the desktop nav's own treatment. */}
-                          <span
-                            aria-hidden="true"
-                            className="bg-brand block h-px w-0 rounded-full transition-[width] duration-300 ease-[var(--ease-out-soft)] group-hover:w-3"
-                          />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </nav>
+              {finalCta.primaryCta.label}
+              <span className="bg-brand flex size-9 items-center justify-center rounded-full transition-transform duration-300 ease-[var(--ease-out-soft)] group-hover:rotate-45">
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </span>
+            </Link>
           </div>
 
-          <div className="mt-14 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[0.8125rem] text-muted">
-              © {siteConfig.copyrightYear} {siteConfig.name}, Inc. All rights
-              reserved.
+          {/* Navigation as one ruled row. Each column is a label above its
+              links, so nine items read at a glance instead of filling a
+              grid with air. */}
+          <nav
+            aria-label="Footer"
+            className="grid gap-x-8 gap-y-10 py-12 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {footerNavigation.map((column) => (
+              <div
+                key={column.title}
+                data-animate="reveal"
+                className="flex flex-col gap-4"
+              >
+                <h2 className="text-eyebrow text-white/30">{column.title}</h2>
+                <ul className="flex flex-col gap-3">
+                  {column.items.map((item) => (
+                    <li key={`${column.title}-${item.label}`}>
+                      <Link
+                        href={item.href}
+                        className="group relative inline-flex items-center text-[0.9375rem] text-white/55 transition-colors duration-300 hover:text-white"
+                      >
+                        {item.label}
+                        <span
+                          aria-hidden="true"
+                          className="bg-brand absolute -bottom-1 left-0 block h-px w-0 rounded-full transition-[width] duration-300 ease-[var(--ease-out-soft)] group-hover:w-full"
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* Fourth column: socials and status, so the grid resolves
+                evenly instead of leaving a gap. */}
+            <div data-animate="reveal" className="flex flex-col gap-4">
+              <h2 className="text-eyebrow text-white/30">Follow</h2>
+
+              <ul className="flex gap-2.5">
+                {siteConfig.socials.map((social) => (
+                  <li key={social.id}>
+                    <Link
+                      href={social.href}
+                      aria-label={social.label}
+                      className="flex size-10 items-center justify-center rounded-full border border-white/12 text-white/60 transition-[border-color,background-color,color,transform] duration-300 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      <BrandGlyph name={social.id} className="size-4" inherit />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </nav>
+
+          {/* Baseline */}
+          <div className="flex flex-col gap-4 border-t border-white/10 py-8 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[0.8125rem] text-white/35">
+              © {siteConfig.copyrightYear} {siteConfig.name}, Inc.
             </p>
 
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
@@ -277,7 +302,7 @@ export function Footer() {
                 <li key={item.label}>
                   <Link
                     href={item.href}
-                    className="text-[0.8125rem] text-muted transition-colors duration-300 hover:text-foreground"
+                    className="text-[0.8125rem] text-white/35 transition-colors duration-300 hover:text-white/75"
                   >
                     {item.label}
                   </Link>
@@ -287,25 +312,15 @@ export function Footer() {
           </div>
         </Container>
 
-        {/* Oversized wordmark, clipped by the page edge. Decorative: the
-            name is already in the logo above, so it is hidden from AT.
-
-            Filled with a faded brand gradient rather than an outline stroke
-            — a 1px stroke in the border colour sits at 1.35:1 against the
-            page, which reads as nothing at all. */}
-        <div aria-hidden="true" className="mt-8 overflow-hidden pb-6">
-          <Container>
-            {/* Opacity sits on the wrapper, not on the gradient text: some
-                browsers drop a background-clip fill when the element it is
-                painted on is itself transparent. Strong enough to read as
-                a deliberate sign-off rather than a printing error. */}
-            <div data-footer-mark className="opacity-[0.38]">
-              <p className="text-display bg-brand bg-clip-text pb-[0.08em] text-center text-[clamp(4rem,18vw,16rem)] leading-[1] font-semibold tracking-[-0.04em] text-transparent select-none">
-                {siteConfig.name}
-              </p>
-            </div>
-          </Container>
-        </div>
+        {/* The floor: the wordmark, full bleed and clipped by the page
+            edge. Decorative — the name is already in the copyright line
+            above, so it is hidden from assistive tech. */}
+        <p
+          aria-hidden="true"
+          className="text-display pointer-events-none translate-y-[0] text-center text-[19vw] leading-none font-semibold tracking-[-0.04em] text-white/[0.07] select-none"
+        >
+          {siteConfig.name}
+        </p>
       </div>
     </footer>
   );
